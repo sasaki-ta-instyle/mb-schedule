@@ -1719,7 +1719,7 @@ function ProjectCard({
                     className="form-label"
                     style={{ fontSize: ".6875rem" }}
                   >
-                    会社タグ
+                    ブランド/部署タグ
                   </label>
                   <select
                     className="input editable-only"
@@ -1731,7 +1731,7 @@ function ProjectCard({
                       });
                     }}
                     style={{ fontSize: ".75rem" }}
-                    title="会社タグ"
+                    title="ブランド/部署タグ"
                   >
                     <option value="">（未設定）</option>
                     {COMPANIES.map((c) => (

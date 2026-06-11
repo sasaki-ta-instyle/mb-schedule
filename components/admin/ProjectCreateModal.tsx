@@ -334,7 +334,7 @@ export function ProjectCreateModal({
             </div>
             <div style={{ display: "flex", gap: 12 }}>
               <div style={{ flex: 1 }}>
-                <label className="form-label">会社タグ</label>
+                <label className="form-label">ブランド/部署タグ</label>
                 <select
                   className="input"
                   value={company}

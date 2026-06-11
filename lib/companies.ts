@@ -1,25 +1,21 @@
+// mb-schedule 用「ブランド/部署」タグ。
+// ブランド系（simius / TRIPURE / UPTIS / AWAI / STYLE HOMME / 新ブランド / 新規）と
+// 部署系（CRM / CS / PR / 商品企画 / 商品開発 / 商品管理）の混在。
+// 変数名・DB カラム名は ig-schedule 由来の company を継続使用（互換性のため）。
 export const COMPANIES = [
-  "IG",
-  "西村さん",
-  "人事",
-  "労務",
-  "アプリ",
-  "メビウス",
-  "イルムス",
-  "VERITE",
-  "おふぃごは",
-  "Provision",
-  "BIRTHLY",
-  "DB",
-  "とみ田",
-  "be there",
-  "Less",
-  "XGJ",
-  "CHICKEN",
-  "Alouette",
-  "マルゴット",
-  "FEARLESS",
-  "LtOVES",
+  "simius",
+  "TRIPURE",
+  "UPTIS",
+  "AWAI",
+  "STYLE HOMME",
+  "新ブランド",
+  "新規",
+  "CRM",
+  "CS",
+  "PR",
+  "商品企画",
+  "商品開発",
+  "商品管理",
 ] as const;
 
 export type Company = (typeof COMPANIES)[number];

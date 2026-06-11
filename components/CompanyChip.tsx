@@ -25,7 +25,7 @@ export function CompanyChip({
   const isXs = size === "xs";
   return (
     <span
-      title={`会社タグ: ${company}`}
+      title={`ブランド/部署タグ: ${company}`}
       style={{
         display: "inline-flex",
         alignItems: "center",
