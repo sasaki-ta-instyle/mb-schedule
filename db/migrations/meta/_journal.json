@@ -1,0 +1,104 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1778556336268,
+      "tag": "0000_kind_human_torch",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778576321889,
+      "tag": "0001_fat_shatterstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778592858784,
+      "tag": "0002_unique_glorian",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778651009484,
+      "tag": "0003_wonderful_mulholland_black",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779107924409,
+      "tag": "0004_material_logan",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1779429566885,
+      "tag": "0005_flippant_micromax",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779430000000,
+      "tag": "0006_wada_blue",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1779430500000,
+      "tag": "0007_yamada_violet",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1779431000000,
+      "tag": "0008_yamada_lead_projects_violet",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1779431500000,
+      "tag": "0009_sasaki_green_brighter",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1779432000000,
+      "tag": "0010_sasaki_lead_projects_green",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1779432500000,
+      "tag": "0011_nakano_yellow_deeper",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1779433000000,
+      "tag": "0012_nakano_lead_projects_deeper",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1779433500000,
+      "tag": "0013_wada_lead_projects_blue",
+      "breakpoints": true
+    }
+  ]
+}

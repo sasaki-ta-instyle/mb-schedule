@@ -1,0 +1,34 @@
+# Semgrep が無視するパス。実行時の除外。
+# ルールは ~/Workspace/CLAUDE.md の Semgrep 節を参照。
+
+node_modules/
+.next/
+.vercel/
+.turbo/
+public/
+out/
+dist/
+build/
+coverage/
+
+# Workspace 共通の生成物 / テンプレ
+_templates/
+_archive/
+_estimate/
+_staging/
+_conversation-logs/
+_reviews/
+_shared-assets/
+design-system/
+design-system_liquid/
+design-system_liquid_taste/
+
+# minified / generated
+*.min.js
+*.min.css
+*.map
+
+# ロックファイル
+pnpm-lock.yaml
+package-lock.json
+yarn.lock

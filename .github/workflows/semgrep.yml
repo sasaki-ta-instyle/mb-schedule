@@ -1,0 +1,31 @@
+name: Semgrep
+
+# 静的解析 (XSS / SQL injection / Secret leak / OWASP 系) を PR 時に走らせる。
+# 強制ゲートではない（main への push は守らない）。指摘は PR のステータスとして見える。
+# ローカル試走: `npx --yes semgrep --config auto --severity ERROR --severity WARNING`
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".github/**"
+  workflow_dispatch:
+
+jobs:
+  semgrep:
+    name: semgrep/ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: semgrep/semgrep
+    if: (github.actor != 'dependabot[bot]')
+
+    steps:
+      - uses: actions/checkout@v4
+      - run: semgrep ci --config auto
+        env:
+          SEMGREP_RULES: p/default p/security-audit p/secrets p/javascript p/typescript p/nextjs

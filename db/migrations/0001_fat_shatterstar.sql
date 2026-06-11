@@ -1,0 +1,1 @@
+ALTER TABLE "tasks" ADD COLUMN "estimated_hours" numeric(5, 2);

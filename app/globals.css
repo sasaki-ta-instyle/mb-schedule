@@ -1,0 +1,1431 @@
+@import "tailwindcss";
+
+:root {
+  /* Mebius (cool neutral + teal accent + steel blue dark glass) */
+  --color-bg:          #F3F3F3;
+  --color-surface:     #F6FAFC;
+  --color-text:        #1E1E1E;
+  --color-text-muted:  #878F92;
+  --color-text-light:  #D7D7D7;
+  --color-text-inv:    #F6FAFC;
+  --color-success:     #7BB785;
+  --color-warning:     #D4772C;
+  --color-error:       #C6292C;
+  --color-info:        #3F5680;
+  --color-highlight:   #E2DD2A;
+  --color-accent:      #00ABBF; /* Mebius teal — CTA / 選択中タブ / アクセントライン */
+
+  --glass-light:       rgba(255,255,255,.55);
+  --glass-warm:        rgba(246,250,252,.58);
+  --glass-dark:        rgba(63,86,128,.78);
+  --glass-tinted:      rgba(215,215,215,.42);
+  --glass-border-l:    rgba(255,255,255,.80);
+  --glass-border-w:    rgba(255,255,255,.62);
+  --glass-border-d:    rgba(255,255,255,.13);
+  --glass-blur-sm:     saturate(180%) blur(16px);
+  --glass-blur:        saturate(200%) blur(24px);
+  --glass-blur-lg:     saturate(220%) blur(40px);
+  --glass-shadow-sm:   0 2px 12px rgba(30,30,30,.09),0 1px 4px rgba(30,30,30,.07);
+  --glass-shadow:      0 8px 32px rgba(30,30,30,.11),0 2px 8px rgba(30,30,30,.08);
+  --glass-shadow-lg:   0 20px 64px rgba(30,30,30,.16),0 4px 16px rgba(30,30,30,.10);
+  --glass-hl:          inset 0 1px 0 rgba(255,255,255,.90),inset 0 -1px 0 rgba(0,0,0,.055);
+  --glass-hl-d:        inset 0 1px 0 rgba(255,255,255,.18),inset 0 -1px 0 rgba(0,0,0,.22);
+
+  --r-sm:   10px;
+  --r:      16px;
+  --r-lg:   24px;
+  --r-xl:   32px;
+  --r-pill: 999px;
+
+  /* 8px グリッド準拠の余白トークン。padding/gap/margin の数値リテラル直書きを
+     避けるため、Phase 0 で先行追加する。Phase 1 以降の修正は本トークンを使う。 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --corner-shape:      superellipse(2.5);
+  --corner-shape-hard: superellipse(3.5);
+
+  --font-sans:    'Gen Interface JP', system-ui, -apple-system, 'Helvetica Neue', 'Hiragino Sans', sans-serif;
+  --font-display: 'Gen Interface JP Display', 'Gen Interface JP', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Menlo', monospace;
+
+  --ease-out: 250ms cubic-bezier(.4,0,.2,1);
+  --ease-spring: 380ms cubic-bezier(.34,1.56,.64,1);
+
+  --header-h: 74px;
+}
+
+* { corner-shape: var(--corner-shape); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  background: var(--color-bg);
+  font-size: 14px;
+}
+/* OS で「視差を減らす」を有効にしていないユーザーにだけ smooth scroll を適用。
+   WCAG 2.3.3 配慮。 */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  font-feature-settings: "palt";
+  line-height: 1.7;
+  letter-spacing: .01em;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* ── Ambient scene background ── */
+.scene-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: var(--color-bg);
+  overflow: hidden;
+  pointer-events: none;
+}
+.scene-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 72% 65% at  8%  6%, rgba(215,215,215,.58) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 55% at 94% 10%, rgba(241,245,247,.65) 0%, transparent 52%),
+    radial-gradient(ellipse 52% 68% at 78% 88%, rgba(215,215,215,.42) 0%, transparent 55%),
+    radial-gradient(ellipse 66% 46% at 18% 92%, rgba(241,245,247,.52) 0%, transparent 55%),
+    radial-gradient(ellipse 42% 42% at 50% 48%, rgba(246,250,252,.32) 0%, transparent 52%);
+}
+
+main, header, footer, section, .page-wrap { position: relative; z-index: 1; }
+
+/* ── Glass panel ── */
+.glass-panel {
+  background: rgba(246,250,252,.50);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-w);
+  box-shadow: var(--glass-hl), var(--glass-shadow);
+  border-radius: var(--r-xl);
+  corner-shape: var(--corner-shape-hard);
+  padding: 32px;
+  position: relative;
+  /* overflow: clip にして子の sticky を viewport まで通す
+     (clip はスクロールコンテナを作らないため hidden と違って親方向の sticky を阻害しない) */
+  overflow: clip;
+}
+
+/* sticky を使う panel では clip すら避けて完全に visible にする */
+.glass-panel.allow-sticky {
+  overflow: visible;
+}
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.85) 50%, transparent);
+  pointer-events: none;
+}
+
+.glass-card {
+  background: rgba(246,250,252,.45);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid var(--glass-border-w);
+  box-shadow: var(--glass-hl), var(--glass-shadow-sm);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  position: relative;
+}
+
+/* ── Modal (共通の枠) ──
+   5 つの Modal が独自に backdrop + glass-panel を inline で書いていた状態を共通化。
+   .modal-backdrop は全画面のオーバーレイ、.modal-content は内側のカード。
+   scene-bg は blur を持たないので、ここで backdrop に軽い blur(8px) を当てる程度に留めて
+   内側 .glass-panel の blur(24px) と二重に重ねすぎないようにする。 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-8);
+  overflow-y: auto;
+  background: rgba(63, 86, 128, 0.42);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  width: min(960px, 100%);
+  padding: 28px;
+}
+
+.modal-content--sm {
+  width: min(420px, 100%);
+}
+.modal-content--md {
+  width: min(640px, 100%);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-4);
+  gap: var(--space-4);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.glass-cell {
+  background: rgba(246,250,252,.35);
+  border: 1px solid rgba(255,255,255,.42);
+  border-radius: var(--r-sm);
+  padding: 8px;
+  position: relative;
+  transition: background var(--ease-out);
+}
+.glass-cell:hover { background: rgba(255,255,255,.55); }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border-radius: var(--r-pill);
+  font-size: .8125rem;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  letter-spacing: .01em;
+  cursor: pointer;
+  border: none;
+  transition: all var(--ease-out);
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+.btn-primary {
+  background: rgba(63,86,128,.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--color-text-inv);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: var(--glass-hl-d), 0 4px 16px rgba(30,30,30,.28);
+}
+.btn-primary:hover:not(:disabled) {
+  background: rgba(30,30,30,.90);
+  transform: translateY(-1px);
+  box-shadow: var(--glass-hl-d), 0 8px 24px rgba(30,30,30,.34);
+}
+.btn-secondary {
+  background: rgba(246,250,252,.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: var(--color-text);
+  border: 1px solid rgba(255,255,255,.78);
+  box-shadow: var(--glass-hl), var(--glass-shadow-sm);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(255,255,255,.82);
+  transform: translateY(-1px);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  padding: 6px 12px;
+}
+.btn-ghost:hover:not(:disabled) { background: rgba(255,255,255,.42); color: var(--color-text); }
+.btn-lg { padding: 14px 32px; font-size: .9375rem; }
+.btn-sm { padding: 6px 14px; font-size: .75rem; }
+
+/* ── Form ── */
+.form-label {
+  display: block;
+  font-size: .75rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--color-text-muted);
+}
+.input {
+  width: 100%;
+  padding: 9px 14px;
+  background: rgba(255,255,255,.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.78);
+  border-radius: var(--r-sm);
+  font-size: .8125rem;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  transition: all 150ms ease;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 2px 8px rgba(30,30,30,.06);
+}
+.input:focus-visible {
+  outline: none;
+  background: rgba(255,255,255,.82);
+  border-color: rgba(255,255,255,.95);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 0 0 3px rgba(215,215,215,.38);
+}
+
+/* ── Focus visible（共通） ──
+   キーボード操作で interactive 要素に focus が当たったとき、
+   Liquid 規約のリング `0 0 0 3px rgba(215,215,215,.38)` を一律に。
+   click / tap では発火させない（:focus でなく :focus-visible を使う）。 */
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="radio"]:focus-visible,
+[tabindex]:focus-visible {
+  outline: none;
+  /* リングだけ当てて border-radius は触らない。
+     pill 形状の btn-primary や mode-toggle が四角に変形しないように。 */
+  box-shadow: 0 0 0 3px rgba(215, 215, 215, 0.38);
+}
+
+.checkbox:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(215, 215, 215, 0.55);
+}
+
+/* ── Spinner animation (共通) ── */
+@keyframes ig-spinner {
+  to { transform: rotate(360deg); }
+}
+
+/* TaskBoard / Admin で共通の「タップ可能な見出し行」hover */
+.project-header-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.42);
+}
+
+/* ── プロジェクトヘッダ: ▾ + ● + 名前 / メタ / 担当チップ の 3 行レイアウト ──
+   ・ row 1: title group（▾ + ● + 🔒 + プロジェクト名）
+   ・ row 2: CompanyChip + 期日 + (件数)
+   ・ row 3: 担当チップ集約（山田 / 柏木 / …）
+   どのビューポートでも同じ縦並びで読みやすさ優先。長いプロジェクト名は
+   全文表示。button は flex-basis: 100% で 1 行を独占し、担当チップは
+   自動で次の outer row に落ちる。 */
+.project-card-header .project-header-btn {
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  row-gap: 4px;
+  overflow: visible;
+}
+.project-card-header .project-title-group {
+  flex-basis: 100%;
+}
+.project-card-header .project-name {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* ── ProjectsPanel: 統合カードの展開時演出 ──
+   AdminPanel + TaskBoard を統合した /projects 用のスタイル。
+   展開コンテナは glass を弱めて「紙」のトーンに降ろす。 */
+.project-expanded-panel {
+  display: grid;
+  grid-template-columns: clamp(320px, 30%, 420px) 1fr;
+  gap: var(--space-5);
+  background: rgba(246, 250, 252, 0.32);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: var(--r);
+  padding: var(--space-4) var(--space-5);
+  margin-top: var(--space-2);
+}
+@media (max-width: 1024px) {
+  .project-expanded-panel {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 展開時のカードヘッダを sticky に。
+   内部スクロールに追従して、操作行が画面上に残るようにする。 */
+.project-card[data-expanded="true"] .project-card-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--glass-tinted);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border-radius: var(--r-sm);
+}
+
+/* ジャンプ着地時の灯り演出（1 回だけ走らせる）。
+   prefers-reduced-motion 有効時は短縮。 */
+@keyframes project-arrival-glow {
+  0%,
+  30% {
+    box-shadow: 0 0 0 3px rgba(215, 215, 215, 0.4),
+      var(--glass-hl), var(--glass-shadow-sm);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(215, 215, 215, 0),
+      var(--glass-hl), var(--glass-shadow-sm);
+  }
+}
+.project-card[data-just-opened="true"] {
+  animation: project-arrival-glow 1.2s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-card[data-just-opened="true"] {
+    animation-duration: 0.4s;
+  }
+}
+
+/* /projects 着地時の inline notice (3 秒で fade)。 */
+@keyframes projects-notice-fade {
+  0%,
+  70% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+    visibility: hidden;
+  }
+}
+.projects-inline-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-4);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--glass-border-w);
+  border-radius: var(--r-sm);
+  font-size: 0.8125rem;
+  color: var(--color-text);
+  animation: projects-notice-fade 3s ease-out forwards;
+}
+
+/* ダッシュボードのタスクタイトル → /projects へのジャンプリンク。
+   見た目はテキストのままで、hover 時にうっすら underline。 */
+.dashboard-task-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.dashboard-task-link:hover {
+  text-decoration: underline;
+  text-decoration-color: rgba(30, 30, 30, 0.3);
+}
+
+/* DnD: 「同プロジェクト・同週」以外の行はドラッグ中だけ dim する。
+   ハンドルは hover 時のみ可視化（視覚ノイズ抑制）。 */
+.task-list[data-drag-active="true"] > li[data-drag-eligible="false"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.task-list > li[data-row="taskboard"] .drag-handle {
+  opacity: 0;
+  transition: opacity var(--ease-out);
+}
+.task-list > li[data-row="taskboard"]:hover .drag-handle,
+.task-list > li[data-row="taskboard"] .drag-handle:focus-visible,
+.task-list[data-drag-active="true"] > li[data-row="taskboard"] .drag-handle {
+  opacity: 1;
+}
+
+/* ── ActionMenu (︙ popover) ── */
+.action-menu {
+  position: relative;
+  display: inline-block;
+}
+.action-menu > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 1rem;
+  line-height: 1;
+}
+.action-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.action-menu[open] > summary {
+  background: rgba(255, 255, 255, 0.55);
+}
+.action-menu-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 180px;
+  /* 「操作の選択肢」を出すポップアップなので可読性優先で不透明度を上げる。
+     Nav active と同じ「明るい白」路線に揃え、glass-hl で浮遊感を補強。 */
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-l);
+  border-radius: var(--r-sm);
+  box-shadow: var(--glass-hl), var(--glass-shadow);
+  padding: var(--space-1);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.action-menu-list button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  background: transparent;
+  border-radius: var(--r-sm);
+  text-align: left;
+  font: inherit;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.action-menu-list button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.55);
+}
+.action-menu-list .menu-item--destructive {
+  color: #9C1212;
+}
+.action-menu-list .menu-item--destructive:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.12);
+}
+/* ActionMenu open 中はツールチップ等の外部 UI を隠して、メニューと重ならないようにする */
+body.action-menu-open [role="tooltip"] {
+  display: none !important;
+}
+
+/* Dashboard セル内（タスクリスト）の ActionMenu は行密度に合わせて縮める */
+.cell-task-list .action-menu > summary {
+  padding: 0 4px;
+  font-size: .75rem;
+  line-height: 1.2;
+}
+.cell-task-list .action-menu-list {
+  min-width: 140px;
+}
+.cell-task-list .action-menu-list button {
+  padding: var(--space-1) var(--space-2);
+  font-size: .75rem;
+}
+
+/* ── Modal overflow trap 対策 (reviewer M1) ──
+   `align-items: center` を inline override する Modal でも、コンテンツが viewport を
+   超えたときに上端へ到達できるよう、内側に最大高さ + scroll を効かせる仕掛けを用意。
+   各 Modal の content に .modal-content--scroll を付けて使う。 */
+.modal-content--scroll {
+  max-height: calc(100vh - var(--space-8) * 2);
+  overflow-y: auto;
+}
+.input::placeholder { color: var(--color-text-light); }
+select.input { cursor: pointer; }
+textarea.input { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+/* ── Toggle (preview / edit) ── */
+.mode-toggle {
+  display: inline-flex;
+  padding: 3px;
+  background: rgba(246,250,252,.60);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.68);
+  border-radius: var(--r-pill);
+  box-shadow: var(--glass-hl), var(--glass-shadow-sm);
+}
+.mode-toggle button {
+  padding: 6px 16px;
+  border: none;
+  background: transparent;
+  border-radius: var(--r-pill);
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  transition: all var(--ease-out);
+}
+.mode-toggle button[aria-pressed="true"] {
+  background: rgba(63,86,128,.85);
+  color: var(--color-text-inv);
+  box-shadow: 0 2px 6px rgba(30,30,30,.18);
+}
+
+/* ── Nav tabs (Floating Pill) ──
+   design.md 準拠の Floating Pill。glass material + backdrop blur + 浮遊感のある
+   shadow で「ヘッダー領域に浮かんでいる pill」として独立した存在感を持たせる。 */
+.tabs {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--glass-warm);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  padding: 4px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--glass-border-w);
+  box-shadow: var(--glass-hl), var(--glass-shadow-sm);
+}
+.tabs a {
+  padding: 7px 18px;
+  border-radius: var(--r-pill);
+  font-size: .8125rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: all var(--ease-out);
+}
+/* リンクを inline-flex に変えて、accent dot を first-child として配置することで
+   ラベルが 2 行に wrap してもドットが見出しの先頭から離れないようにする。 */
+.tabs a {
+  display: inline-flex;
+  align-items: center;
+}
+.tabs a[aria-current="page"] {
+  background: rgba(255,255,255,.92);
+  color: var(--color-text);
+  font-weight: 700;
+  box-shadow: var(--glass-hl), 0 1px 4px rgba(30,30,30,.10);
+}
+.tabs a[aria-current="page"]::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  margin-right: 7px;
+  flex-shrink: 0;
+}
+.tabs a:hover:not([aria-current="page"]) {
+  color: var(--color-text);
+  background: rgba(255,255,255,.42);
+}
+
+/* ── Badge / chip ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: var(--r-pill);
+  font-size: .6875rem;
+  font-weight: 500;
+  background: rgba(255,255,255,.55);
+  border: 1px solid rgba(255,255,255,.62);
+  color: var(--color-text);
+}
+.badge-warn { background: rgba(212,119,44,.18); border-color: rgba(212,119,44,.42); color: #8A4D14; }
+.badge-error { background: rgba(220,38,38,.16); border-color: rgba(220,38,38,.36); color: #9C1212; }
+.badge-ok { background: rgba(123,183,133,.18); border-color: rgba(123,183,133,.42); color: #2F6F3A; }
+
+/* ── Section title (tracked sans / eyebrow) ── */
+.eyebrow {
+  font-size: .625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--color-text-muted);
+}
+
+/* ── Checkbox ── */
+.checkbox {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid rgba(30,30,30,.32);
+  background: rgba(255,255,255,.65);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: all var(--ease-out);
+}
+.checkbox:hover { border-color: rgba(30,30,30,.55); }
+.checkbox:checked {
+  background: rgba(63,86,128,.85);
+  border-color: rgba(63,86,128,.85);
+}
+.checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 3.5px;
+  top: 0.5px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--color-text-inv);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.checkbox:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Disabled (preview mode) ── */
+.is-readonly .editable-only { pointer-events: none; opacity: 0.78; }
+.is-readonly .edit-only { display: none !important; }
+
+/* ── Dashboard cell task list dividers ── */
+.cell-task-list > li {
+  padding: 4px 0;
+}
+.cell-task-list > li + li {
+  border-top: 1px solid rgba(30, 30, 30, 0.10);
+}
+
+/* ── Task board zebra ── */
+.task-list > li:nth-child(odd) {
+  background: rgba(246, 250, 252, 0.55) !important;
+}
+.task-list > li:nth-child(even) {
+  background: rgba(215, 215, 215, 0.22) !important;
+}
+
+/* ── Scrollbar ── */
+.scroll-x { overflow-x: auto; }
+.scroll-x::-webkit-scrollbar { height: 10px; }
+.scroll-x::-webkit-scrollbar-thumb { background: rgba(215,215,215,.55); border-radius: 999px; }
+.scroll-x::-webkit-scrollbar-track { background: transparent; }
+
+/* ── Type scale shortcuts ── */
+.t-display { font-family: var(--font-display); font-size: 3.6875rem; font-weight: 100; line-height: 1; letter-spacing: -0.03em; }
+.t-h1 { font-family: var(--font-display); font-size: 2.75rem; font-weight: 300; line-height: 1.05; letter-spacing: -0.02em; }
+.t-h2 { font-family: var(--font-display); font-size: 2.0625rem; font-weight: 500; line-height: 1.15; letter-spacing: -0.01em; }
+.t-h3 { font-family: var(--font-display); font-size: 1.5625rem; font-weight: 600; line-height: 1.25; }
+.t-h4 { font-family: var(--font-display); font-size: 1.1875rem; font-weight: 600; line-height: 1.40; }
+.t-body { font-size: .875rem; line-height: 1.7; }
+.t-small { font-size: .6875rem; line-height: 1.5; }
+
+/* ── Util ── */
+.muted { color: var(--color-text-muted); }
+.subtle { color: var(--color-text-light); }
+.mono { font-family: var(--font-mono); }
+
+/* ── Timeline view ── */
+.timeline { display: block; }
+.timeline-axis-years,
+.timeline-axis-months,
+.timeline-milestones,
+.timeline-row { display: flex; }
+
+.timeline-axis-years { padding-left: 200px; margin-bottom: 4px; }
+.timeline-axis-years > div {
+  font-size: .6875rem;
+  color: var(--color-text-muted);
+  letter-spacing: .16em;
+  border-left: 1px solid var(--color-text-light);
+  padding-left: 8px;
+}
+
+.timeline-axis-months { padding-left: 200px; margin-bottom: 8px; }
+.timeline-axis-months > div {
+  flex: 1;
+  font-size: .625rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  border-left: 1px solid rgba(215,215,215,.40);
+  padding: 2px 0;
+}
+/* 「今週」列のマーカー。ヘッダーナビの active タブと同じ意匠（明るい白の pill +
+   青ドット + 太字）に揃え、画面全体のトーンを統一する。 */
+.timeline-axis-months > div.is-today {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-text);
+  font-weight: 700;
+  border-left-color: transparent;
+  border-radius: var(--r-sm);
+  box-shadow: var(--glass-hl), 0 1px 4px rgba(30, 30, 30, 0.10);
+}
+.timeline-axis-months > div.is-today::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.timeline-milestones {
+  padding-left: 200px;
+  position: relative;
+  height: 26px;
+  margin-bottom: 16px;
+}
+.timeline-milestone {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .625rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.timeline-milestone .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 .5px rgba(255,255,255,.6);
+}
+.timeline-milestone .label { color: var(--color-text); }
+
+.timeline-row {
+  align-items: center;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+.timeline-row-label {
+  width: 200px;
+  padding-right: 16px;
+  text-align: right;
+  font-size: .75rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+  transition: color var(--ease-out);
+}
+.timeline-row.active .timeline-row-label { color: var(--color-text); }
+.timeline-row-label-main { font-weight: 600; letter-spacing: .04em; }
+.timeline-row-label-sub  { font-size: .625rem; color: var(--color-text-light); }
+
+.timeline-row-track {
+  flex: 1;
+  display: flex;
+  position: relative;
+  height: 38px;
+  background: var(--glass-light);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid var(--glass-border-w);
+  border-radius: var(--r-sm);
+  box-shadow: var(--glass-hl);
+  overflow: hidden;
+}
+.timeline-row-grid {
+  flex: 1;
+  border-left: 1px solid rgba(215,215,215,.28);
+}
+.timeline-row-grid:first-child { border-left: 0; }
+
+.timeline-row-bar {
+  position: absolute;
+  height: 100%;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-2);
+  overflow: hidden;
+  font-size: .6875rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--color-text-inv);
+  box-shadow: var(--glass-hl), 0 1px 3px rgba(30, 30, 30, 0.12);
+  transition: transform var(--ease-out), box-shadow var(--ease-out), opacity var(--ease-out);
+}
+.timeline-row:hover .timeline-row-bar {
+  box-shadow: var(--glass-hl), 0 4px 12px rgba(30, 30, 30, 0.16);
+  transform: translateY(-1px);
+}
+.timeline-row.active .timeline-row-bar {
+  box-shadow: var(--glass-hl), 0 4px 14px rgba(30, 30, 30, 0.18);
+}
+.timeline-row-bar > span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  max-width: 100%;
+  min-width: 0;
+  line-height: 1.2;
+  text-align: center;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.timeline-row-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .625rem;
+  color: var(--color-text-light);
+  letter-spacing: .04em;
+  pointer-events: none;
+}
+
+/* Member filter chips */
+.timeline-member-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  /* 罫線で区切らず、背景の段差で「フィルタ領域」を表現 */
+  background: rgba(246, 250, 252, 0.32);
+  border-radius: var(--r-sm);
+}
+.timeline-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  background: var(--glass-warm);
+  border: 1px solid var(--glass-border-w);
+  font-size: .75rem;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all var(--ease-out);
+  box-shadow: var(--glass-hl);
+}
+.timeline-chip:hover {
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-text);
+}
+/* active は Nav active タブ / 「今週」マーカーと同じ「明るい白 pill + 青ドット +
+   太字」で統一。dark 反転はトーンが浮くため使わない。 */
+.timeline-chip.is-active {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(255, 255, 255, 0.88);
+  color: var(--color-text);
+  font-weight: 700;
+  box-shadow: var(--glass-hl), 0 1px 4px rgba(30, 30, 30, 0.10);
+}
+.timeline-chip.is-active::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  flex-shrink: 0;
+}
+.timeline-chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 .5px rgba(255,255,255,.55);
+}
+
+/* Detail panel (task list under active row) */
+.timeline-detail {
+  margin: 4px 0 14px 200px;
+  padding: 14px 18px;
+  background: rgba(246,250,252,.55);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid var(--glass-border-w);
+  border-radius: var(--r-sm);
+  box-shadow: var(--glass-hl), var(--glass-shadow-sm);
+}
+.timeline-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: .8125rem;
+}
+.timeline-detail-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.timeline-detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.timeline-detail-block {
+  background: rgba(255,255,255,.42);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+}
+.timeline-detail-block-label {
+  font-size: .625rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+.timeline-detail-block-body {
+  font-size: .8125rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.timeline-task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: rgba(215,215,215,.18);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+}
+.timeline-task {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,.55);
+  font-size: .8125rem;
+}
+.timeline-task-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1.5px solid rgba(30,30,30,.32);
+  background: rgba(255,255,255,.65);
+  font-size: .625rem;
+  color: var(--color-text-inv);
+  line-height: 1;
+}
+.timeline-task-check.is-done {
+  background: rgba(63,86,128,.85);
+  border-color: rgba(63,86,128,.85);
+}
+.timeline-task-week {
+  font-size: .6875rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  min-width: 44px;
+}
+.timeline-task-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.timeline-task-title.is-done {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+.timeline-task-assignee {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  border: 1px solid;
+  font-size: .6875rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .timeline-axis-years,
+  .timeline-axis-months,
+  .timeline-milestones { padding-left: 0; }
+  .timeline-row {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 12px;
+  }
+  .timeline-row-label {
+    width: auto;
+    padding-right: 0;
+    padding-bottom: 6px;
+    text-align: left;
+  }
+  .timeline-row-track {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .timeline-detail { margin-left: 0; }
+}
+
+/* ── レスポンシブ調整 ── */
+/* iPad Pro 12.9 (1366) の手前から、ヘッダーが横並びで崩れる前にハンバーガー
+   drawer に切り替える。1280px 以下は全部スマホ系 UX として扱う。 */
+@media (max-width: 1280px) {
+  .glass-panel {
+    padding: var(--space-5);
+  }
+  .modal-content {
+    padding: var(--space-5);
+  }
+
+  /* ── AppShell ヘッダーをハンバーガー drawer に（1280px 以下で発動） ── */
+  .app-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    grid-template-columns: none !important;
+    gap: var(--space-2) !important;
+    padding: var(--space-2) var(--space-4) !important;
+    overflow: hidden;
+  }
+  .app-header > * {
+    justify-self: stretch !important;
+    min-width: 0;
+  }
+  .app-header-top {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+  .app-header img[alt="INSTYLE GROUP"] {
+    height: 12px !important;
+  }
+  .app-header .t-h4 {
+    font-size: .8125rem !important;
+    line-height: 1.2;
+  }
+  .hamburger {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    min-height: 52px;
+    padding: 0 var(--space-2);
+    font-size: 1.5rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .app-header .tabs:not(.is-open),
+  .app-header-right:not(.is-open) {
+    display: none !important;
+  }
+  .app-header .tabs.is-open {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: var(--space-1);
+    background: rgba(246, 250, 252, 0.55);
+    border-radius: var(--r-sm);
+    border: 0;
+    box-shadow: none;
+  }
+  .app-header .tabs.is-open a {
+    text-align: center;
+    padding: var(--space-2) var(--space-3);
+    font-size: .8125rem;
+    border-radius: var(--r-sm);
+    justify-content: center;
+    min-height: 44px;
+  }
+  .app-header-right.is-open {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: var(--space-2);
+    padding: var(--space-1);
+  }
+  .app-header-right.is-open .mode-toggle {
+    align-self: stretch;
+    justify-content: center;
+  }
+  .app-header-right.is-open .badge,
+  .app-header-right.is-open .btn {
+    align-self: stretch;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* スマートフォン：ヘッダーを縦並びに、Modal を viewport いっぱいに */
+@media (max-width: 640px) {
+  .glass-panel {
+    padding: var(--space-3);
+    border-radius: var(--r);
+  }
+  .modal-backdrop {
+    padding: var(--space-3);
+    align-items: flex-start !important;
+  }
+  .modal-content {
+    width: 100%;
+    padding: var(--space-3);
+    border-radius: var(--r);
+  }
+  .modal-footer {
+    flex-wrap: wrap;
+  }
+  /* タブ navigation は横スクロール可能に */
+  .tabs {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  /* ── 4-1. iOS auto-zoom 防止 + 最小タップ領域 ──
+     iOS Safari/Chrome は input の font-size < 16px だとフォーカス時に
+     強制 zoom が走る。狭幅時のみ 16px に押し上げて UX 破壊を回避。
+     TaskBoard / RecurringList の inline fontSize（.75rem 等）を上書きする
+     必要があるため !important で確実に効かせる。 */
+  .input,
+  select.input,
+  textarea.input,
+  input[type="text"],
+  input[type="search"],
+  input[type="number"],
+  input[type="password"],
+  input[type="date"] {
+    font-size: 16px !important;
+  }
+  .btn,
+  .btn-sm,
+  .btn-ghost {
+    min-height: 44px;
+  }
+  /* ︙ summary は 24px 矩形でも見つけやすいよう min を 44px に */
+  .action-menu > summary {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Dashboard セル内の ︙ は密度を保つため例外（小さいまま） */
+  .cell-task-list .action-menu > summary {
+    min-height: 28px;
+    min-width: 28px;
+  }
+
+  /* 4-2 (AppShell ハンバーガー drawer) は 900px ブロックに移動済み。
+     640px 以下でさらに padding を詰める微調整だけ残す。 */
+  .app-header {
+    padding: var(--space-2) var(--space-3) !important;
+  }
+  .app-header img[alt="INSTYLE GROUP"] {
+    height: 11px !important;
+  }
+  .app-header .t-h4 {
+    font-size: .75rem !important;
+  }
+
+  /* ── 4-3. SearchFilterBar の収まり ──
+     children として並ぶ <select> や <input> の inline width (180/140/130 等)
+     を上書きし、検索 input は full bleed、子の controls は 2 列で wrap。 */
+  .search-filter-bar {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  .search-filter-bar > input[type="search"] {
+    flex: 1 1 100%;
+    width: 100% !important;
+    min-width: 0;
+  }
+  .search-filter-bar > select,
+  .search-filter-bar > .input {
+    flex: 1 1 calc(50% - var(--space-2));
+    width: auto !important;
+    min-width: 0;
+  }
+  .search-filter-bar > label {
+    flex: 1 1 100%;
+  }
+
+  /* ── 4-5. TaskBoard 行を flex-wrap に ──
+     7 列 grid をスマホでは flex-wrap に切り替え、要素が自然に縦積み。
+     drag handle はスマホ DnD が事実上不要なので非表示にする。 */
+  .task-list > li[data-row="taskboard"] {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .task-list > li[data-row="taskboard"] > :first-child {
+    display: none;
+  }
+  .task-list > li[data-row="taskboard"] > :nth-child(3) {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  /* ── 4-6. Admin ProjectRow / Recurring 行の縦並び ──
+     grid を解いて flex-wrap で縦に積む。chip 群はそのまま wrap。 */
+  .project-row[data-row="admin"] > div:first-child {
+    display: flex !important;
+    flex-wrap: wrap;
+    grid-template-columns: none !important;
+    gap: var(--space-2) !important;
+  }
+  .project-row[data-row="admin"] > div:first-child > * {
+    flex: 0 0 auto;
+  }
+  /* Recurring 行も同様 */
+  [data-row="recurring"] {
+    grid-template-columns: 1fr !important;
+    row-gap: var(--space-2);
+  }
+
+  /* ── 4-7. Modal 内 form / Timeline チップ ── */
+  .modal-content .input,
+  .modal-content textarea,
+  .modal-content select {
+    width: 100%;
+  }
+  .timeline-member-filter {
+    flex-wrap: wrap;
+  }
+
+  /* ── 4-8. Dashboard を縦カード化 ──
+     6×6 table をスマホでは「メンバー = カード、6 週セルを縦に積む」に変換。
+     table 要素を block 化することで semantic / a11y を保ちつつ見た目だけ
+     スマホ向けに切り替える。 */
+  .dashboard-table,
+  .dashboard-table tbody,
+  .dashboard-table tr,
+  .dashboard-table td,
+  .dashboard-table th {
+    display: block;
+    width: auto;
+    min-width: 0 !important;
+  }
+  .dashboard-table thead {
+    display: none;
+  }
+  .dashboard-table tr {
+    background: rgba(255, 255, 255, 0.32);
+    border-radius: var(--r);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+  /* メンバー名見出し（左 sticky を解いて単純な見出しに）。
+     inline で当たっている backdrop-filter / zIndex も明示的に打ち消し、
+     カード内に二重 blur が乗らないようにする。 */
+  .dashboard-table tr > th:first-child {
+    position: static !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 0 0 var(--space-2) !important;
+    font-size: 1rem;
+    font-weight: 700;
+    box-shadow: none;
+    z-index: auto;
+  }
+  .dashboard-table tr > td {
+    margin-bottom: var(--space-2);
+    padding: var(--space-2);
+  }
+  /* 各セルの先頭に週ラベル（data-week-label="2026-W23 (6/2-)" などを ::before で表示） */
+  .dashboard-table tr > td[data-week-label]::before {
+    content: attr(data-week-label);
+    display: block;
+    font-size: .6875rem;
+    color: var(--color-text-muted);
+    letter-spacing: .06em;
+    margin-bottom: var(--space-1);
+  }
+  /* モバイルではカード全体に rgba(.32) の背景があるため、自分の行 tint も
+     強めに上書きしないと差が出ない。 */
+  .dashboard-table tr > td.dashboard-row-self {
+    background: rgba(255, 255, 255, 0.55);
+  }
+
+  /* ── 4-9. Dashboard メンバーアンカーリンク ──
+     縦カードで 6 メンバー分の長い縦スクロールを short cut。 */
+  .dashboard-member-anchors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    padding: var(--space-2);
+    background: rgba(246, 250, 252, 0.55);
+    border-radius: var(--r-sm);
+  }
+  .dashboard-member-anchors a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--r-pill);
+    background: var(--glass-warm);
+    border: 1px solid var(--glass-border-w);
+    font-size: .8125rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    box-shadow: var(--glass-hl);
+  }
+  .dashboard-member-anchors a.is-self {
+    color: var(--color-text);
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.92);
+  }
+  /* メンバーカードに飛んだとき、AppShell の sticky header に隠れない位置に
+     スクロールする。 */
+  /* ハンバーガー drawer 展開時の高さも考慮して 120px。 */
+  .dashboard-table tr[id^="dashboard-member-"] {
+    scroll-margin-top: 120px;
+  }
+}
+
+/* ── 4-4. Dashboard 自分の行ハイライト（全幅で共通） ── */
+.dashboard-row-self {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+/* スマホ Dashboard 用のメンバーアンカーリンク。
+   PC では非表示。スマホで table を縦カードにしたとき、長い縦スクロールを
+   short cut するための pill 群。
+   ※ media query で「PC 用 hide」と「スマホ用 show」を排他で書くことで、
+   ソース順による cascade 事故を避ける。 */
+@media (min-width: 641px) {
+  .dashboard-member-anchors {
+    display: none;
+  }
+}
+
+/* ハンバーガー: PC では完全に存在しない。Phase 4 のスマホ用 ── */
+.hamburger {
+  display: none;
+}
+
+/* AppShell のヘッダー内ロゴ / タイトルは PC でも控えめなサイズで。
+   ヘッダーは情報のためのアンカーで、ブランド主張の場ではない。 */
+.app-header img[alt="INSTYLE GROUP"] {
+  height: 12px;
+}
+.app-header .t-h4 {
+  font-size: .9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+/* スマホ用に header の 1 段目をまとめる箱。PC では display: contents で
+   grid 配置に影響させない（中の子要素を直接 grid のセルとして扱う）。 */
+.app-header-top {
+  display: contents;
+}

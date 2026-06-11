@@ -1,0 +1,40 @@
+{
+  "name": "mb-schedule",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3012",
+    "build": "next build",
+    "start": "next start -p 3012",
+    "lint": "eslint",
+    "db:generate": "drizzle-kit generate",
+    "migrate": "tsx db/migrate.ts",
+    "seed": "tsx db/seed.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.36.4",
+    "next": "16.2.4",
+    "pg": "^8.13.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "swr": "^2.2.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/pg": "^8.11.10",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "drizzle-kit": "^0.30.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "^4",
+    "tsx": "^4.19.2",
+    "typescript": "^5"
+  }
+}
