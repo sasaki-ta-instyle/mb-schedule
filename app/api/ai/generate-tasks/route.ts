@@ -243,6 +243,18 @@ export async function POST(req: Request) {
   }
   clearTimeout(timer);
 
+  // DEBUG: response 全体のメタ情報
+  console.error("[AI_DEBUG] stop_reason=", response.stop_reason, "usage=", JSON.stringify(response.usage));
+  for (const c of response.content) {
+    if (c.type === "text") {
+      console.error("[AI_DEBUG] text=", c.text.slice(0, 500));
+    } else if (c.type === "tool_use") {
+      console.error("[AI_DEBUG] tool_use.name=", c.name, "input=", JSON.stringify(c.input).slice(0, 1500));
+    } else {
+      console.error("[AI_DEBUG] other content type=", c.type);
+    }
+  }
+
   const toolUse = response.content.find((c) => c.type === "tool_use");
   if (!toolUse || toolUse.type !== "tool_use") {
     return NextResponse.json(
@@ -265,8 +277,9 @@ export async function POST(req: Request) {
     estimatedHours?: unknown;
   }>;
 
-  // DEBUG: 一時ログ（issue 解析後に削除）
-  console.error("[AI_DEBUG] rawTaskCount=", rawArr.length, "plannedMemberIds=", plannedMemberIds, "weeks=", weeks);
+  // DEBUG: 入力サイズも記録（model に渡るプロンプトが膨らみすぎてないか）
+  console.error("[AI_DEBUG] userPromptLen=", userPrompt.length, "weeksCount=", weeks.length, "membersCount=", members.length);
+  console.error("[AI_DEBUG] rawTaskCount=", rawArr.length, "plannedMemberIds=", plannedMemberIds);
   console.error("[AI_DEBUG] rawTasks=", JSON.stringify(rawArr).slice(0, 2000));
 
   const memberIdSet = new Set(plannedMemberIds);
