@@ -11,15 +11,15 @@ import { members } from "./schema";
 // （preview で違和感があれば DB の members.color を後から更新する）。
 // 佐々木を admin に。AdminMemberPasswordsModal 等 admin 限定 UI のために、初期状態で誰か 1 人は admin になっている必要がある。
 const SEED_MEMBERS = [
-  { name: "安田",   color: "#00ABBF", role: null, isAdmin: false },
-  { name: "高野",   color: "#3F5680", role: null, isAdmin: false },
-  { name: "小畠",   color: "#E15A4F", role: null, isAdmin: false },
-  { name: "近岡",   color: "#D98E1F", role: null, isAdmin: false },
-  { name: "中澤",   color: "#0F8A6E", role: null, isAdmin: false },
-  { name: "堀内",   color: "#A24C8F", role: null, isAdmin: false },
-  { name: "佐々木", color: "#15A03A", role: null, isAdmin: true  },
-  { name: "山田",   color: "#7C3AED", role: null, isAdmin: false },
-  { name: "和田",   color: "#1A73E8", role: null, isAdmin: false },
+  { name: "安田",   color: "#00ABBF", role: "マーケ（CRM）、システム", isAdmin: false },
+  { name: "高野",   color: "#3F5680", role: "マーケ（新規獲得）", isAdmin: false },
+  { name: "小畠",   color: "#E15A4F", role: "マーケ（CRM）", isAdmin: false },
+  { name: "近岡",   color: "#D98E1F", role: "商品管理", isAdmin: false },
+  { name: "中澤",   color: "#0F8A6E", role: "商品開発", isAdmin: false },
+  { name: "堀内",   color: "#A24C8F", role: "商品開発、商品企画", isAdmin: false },
+  { name: "佐々木", color: "#15A03A", role: "クリエイティブディレクション、アートディレクション、デザイン、商品開発補佐、商品企画補佐", isAdmin: true  },
+  { name: "山田",   color: "#7C3AED", role: "PR、SNS", isAdmin: false },
+  { name: "和田",   color: "#1A73E8", role: "マーケ（新規獲得）補佐", isAdmin: false },
 ];
 
 async function main() {
