@@ -593,7 +593,7 @@ export function Dashboard({ archived = false }: { archived?: boolean } = {}) {
                     position: "sticky",
                     left: 0,
                     top: "var(--header-h)",
-                    background: "rgba(237, 233, 224, 0.86)",
+                    background: "rgba(227, 233, 235, 0.86)",
                     backdropFilter: "saturate(180%) blur(16px)",
                     WebkitBackdropFilter: "saturate(180%) blur(16px)",
                     width: 110,
@@ -617,7 +617,7 @@ export function Dashboard({ archived = false }: { archived?: boolean } = {}) {
                       style={{
                         position: "sticky",
                         top: "var(--header-h)",
-                        background: "rgba(237, 233, 224, 0.86)",
+                        background: "rgba(227, 233, 235, 0.86)",
                         backdropFilter: "saturate(180%) blur(16px)",
                         WebkitBackdropFilter: "saturate(180%) blur(16px)",
                         minWidth: 160,
@@ -665,7 +665,7 @@ export function Dashboard({ archived = false }: { archived?: boolean } = {}) {
                     style={{
                       position: "sticky",
                       left: 0,
-                      background: "rgba(243,241,238,.78)",
+                      background: "rgba(241,245,247,.78)",
                       backdropFilter: "blur(12px)",
                       padding: "10px",
                       textAlign: "left",

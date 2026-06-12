@@ -68,7 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           alignItems: "center",
           gap: "var(--space-5)",
           padding: "var(--space-4) var(--space-8)",
-          background: "rgba(237, 233, 224, 0.72)",
+          background: "rgba(227, 233, 235, 0.72)",
           backdropFilter: "saturate(180%) blur(16px)",
           WebkitBackdropFilter: "saturate(180%) blur(16px)",
           borderBottom: "1px solid rgba(255, 255, 255, 0.42)",
