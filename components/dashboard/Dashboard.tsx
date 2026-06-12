@@ -25,7 +25,6 @@ import { SWR_REFRESH_MS } from "@/lib/swr-config";
 import Link from "next/link";
 import { ActionMenu } from "@/components/common/ActionMenu";
 import { useEditMode } from "@/hooks/useEditMode";
-import { restoreDraft, useAutosaveDraft } from "@/hooks/useAutosaveDraft";
 import { useTaskHistory } from "@/hooks/useTaskHistory";
 import type { Company } from "@/lib/companies";
 import { CompanyChip } from "@/components/CompanyChip";
@@ -261,25 +260,6 @@ export function Dashboard({ archived = false }: { archived?: boolean } = {}) {
       mutate(recurringCompletionsKey);
     },
     [recurringCompletionsKey],
-  );
-
-  const addQuickTask = useCallback(
-    async (
-      memberId: number,
-      weekIso: string,
-      projectId: number,
-      title: string,
-    ) => {
-      if (!title.trim()) return;
-      await postJson("/api/tasks", {
-        projectId,
-        assigneeMemberId: memberId,
-        weekIso,
-        title: title.trim(),
-      });
-      mutate(tasksKey);
-    },
-    [tasksKey],
   );
 
   function applyWorkloadDelta(
@@ -811,14 +791,6 @@ export function Dashboard({ archived = false }: { archived?: boolean } = {}) {
                               未完了を翌週へ →
                             </button>
                           )}
-                        {isEdit && (projects?.length ?? 0) > 0 && (
-                          <QuickAdd
-                            memberId={m.id}
-                            weekIso={w}
-                            projects={projects ?? []}
-                            onAdd={addQuickTask}
-                          />
-                        )}
                       </td>
                     );
                   })}
@@ -1217,77 +1189,3 @@ const TaskRow = memo(function TaskRow({
   );
 });
 
-type QuickAddDraft = { projectId: number; title: string };
-const QUICK_ADD_DRAFT_VERSION = 1;
-const quickAddDraftKey = (memberId: number, weekIso: string) =>
-  `mb-schedule:draft:quick-add:${memberId}:${weekIso}`;
-
-const quickAddFormStyle: CSSProperties = { display: "flex", gap: 4, marginTop: 6 };
-const quickAddSelectStyle: CSSProperties = { padding: "4px 6px", fontSize: ".6875rem", width: 64 };
-const quickAddInputStyle: CSSProperties = { padding: "4px 8px", fontSize: ".6875rem", flex: 1 };
-
-const QuickAdd = memo(function QuickAdd({
-  memberId,
-  weekIso,
-  projects,
-  onAdd,
-}: {
-  memberId: number;
-  weekIso: string;
-  projects: Project[];
-  onAdd: (memberId: number, weekIso: string, projectId: number, title: string) => void;
-}) {
-  const draftKey = quickAddDraftKey(memberId, weekIso);
-  const [initial] = useState<QuickAddDraft | null>(() =>
-    restoreDraft<QuickAddDraft>(draftKey, QUICK_ADD_DRAFT_VERSION),
-  );
-  const [projectId, setProjectId] = useState<number>(
-    initial?.projectId ?? projects[0]?.id ?? 0,
-  );
-  const [title, setTitle] = useState(initial?.title ?? "");
-
-  const snapshot = useMemo<QuickAddDraft>(
-    () => ({ projectId, title }),
-    [projectId, title],
-  );
-  const { clear: clearStoredDraft } = useAutosaveDraft(
-    draftKey,
-    QUICK_ADD_DRAFT_VERSION,
-    snapshot,
-  );
-
-  return (
-    <form
-      className="edit-only"
-      style={quickAddFormStyle}
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (title.trim() && projectId) {
-          onAdd(memberId, weekIso, projectId, title);
-          setTitle("");
-          clearStoredDraft();
-        }
-      }}
-    >
-      <select
-        className="input"
-        value={projectId}
-        onChange={(e) => setProjectId(Number(e.target.value))}
-        style={quickAddSelectStyle}
-      >
-        {projects.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name}
-          </option>
-        ))}
-      </select>
-      <input
-        className="input"
-        placeholder="タスクを追加"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        style={quickAddInputStyle}
-      />
-    </form>
-  );
-});
