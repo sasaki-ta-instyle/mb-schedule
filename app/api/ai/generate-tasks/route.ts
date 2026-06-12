@@ -165,7 +165,9 @@ export async function POST(req: Request) {
     response = await client.messages.create(
       {
         model,
-        max_tokens: 4096,
+        // 期間が長い（数十週）+ メンバーが複数の場合、4096 では tool_use の引数 JSON 生成中に
+        // max_tokens で打ち切られ、input={} の空応答になる。8192 に拡張して余裕を持たせる。
+        max_tokens: 8192,
         system: [
           {
             type: "text",
@@ -243,18 +245,6 @@ export async function POST(req: Request) {
   }
   clearTimeout(timer);
 
-  // DEBUG: response 全体のメタ情報
-  console.error("[AI_DEBUG] stop_reason=", response.stop_reason, "usage=", JSON.stringify(response.usage));
-  for (const c of response.content) {
-    if (c.type === "text") {
-      console.error("[AI_DEBUG] text=", c.text.slice(0, 500));
-    } else if (c.type === "tool_use") {
-      console.error("[AI_DEBUG] tool_use.name=", c.name, "input=", JSON.stringify(c.input).slice(0, 1500));
-    } else {
-      console.error("[AI_DEBUG] other content type=", c.type);
-    }
-  }
-
   const toolUse = response.content.find((c) => c.type === "tool_use");
   if (!toolUse || toolUse.type !== "tool_use") {
     return NextResponse.json(
@@ -277,10 +267,17 @@ export async function POST(req: Request) {
     estimatedHours?: unknown;
   }>;
 
-  // DEBUG: 入力サイズも記録（model に渡るプロンプトが膨らみすぎてないか）
-  console.error("[AI_DEBUG] userPromptLen=", userPrompt.length, "weeksCount=", weeks.length, "membersCount=", members.length);
-  console.error("[AI_DEBUG] rawTaskCount=", rawArr.length, "plannedMemberIds=", plannedMemberIds);
-  console.error("[AI_DEBUG] rawTasks=", JSON.stringify(rawArr).slice(0, 2000));
+  // max_tokens で打ち切られた場合は tool_use.input が空 or 不完全 JSON のことが多い。
+  // 空応答を黙って返すとフロントが「タスクが出てこない」状態になるので、明示エラーで返す。
+  if (response.stop_reason === "max_tokens" && rawArr.length === 0) {
+    return NextResponse.json(
+      {
+        error:
+          "AI 応答が出力上限で打ち切られました。期間を短くするか、担当メンバー数を減らしてもう一度お試しください。",
+      },
+      { status: 502 },
+    );
+  }
 
   const memberIdSet = new Set(plannedMemberIds);
   const weekSet = new Set(weeks);
@@ -288,9 +285,9 @@ export async function POST(req: Request) {
     .map((t, i) => {
       const title = sanitizeText(t.title, TEXT_LIMITS.taskTitle);
       const assignee = Number(t.assigneeMemberId);
-      if (!title) { console.error("[AI_DEBUG] reject(no title)", JSON.stringify(t).slice(0, 200)); return null; }
-      if (typeof t.weekIso !== "string" || !weekSet.has(t.weekIso)) { console.error("[AI_DEBUG] reject(weekIso)", t.weekIso); return null; }
-      if (!memberIdSet.has(assignee)) { console.error("[AI_DEBUG] reject(member)", assignee, "not in", [...memberIdSet]); return null; }
+      if (!title) return null;
+      if (typeof t.weekIso !== "string" || !weekSet.has(t.weekIso)) return null;
+      if (!memberIdSet.has(assignee)) return null;
       const notes =
         t.notes == null
           ? null
