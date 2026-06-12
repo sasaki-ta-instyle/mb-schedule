@@ -265,15 +265,19 @@ export async function POST(req: Request) {
     estimatedHours?: unknown;
   }>;
 
+  // DEBUG: 一時ログ（issue 解析後に削除）
+  console.error("[AI_DEBUG] rawTaskCount=", rawArr.length, "plannedMemberIds=", plannedMemberIds, "weeks=", weeks);
+  console.error("[AI_DEBUG] rawTasks=", JSON.stringify(rawArr).slice(0, 2000));
+
   const memberIdSet = new Set(plannedMemberIds);
   const weekSet = new Set(weeks);
   const tasks = capped
     .map((t, i) => {
       const title = sanitizeText(t.title, TEXT_LIMITS.taskTitle);
       const assignee = Number(t.assigneeMemberId);
-      if (!title) return null;
-      if (typeof t.weekIso !== "string" || !weekSet.has(t.weekIso)) return null;
-      if (!memberIdSet.has(assignee)) return null;
+      if (!title) { console.error("[AI_DEBUG] reject(no title)", JSON.stringify(t).slice(0, 200)); return null; }
+      if (typeof t.weekIso !== "string" || !weekSet.has(t.weekIso)) { console.error("[AI_DEBUG] reject(weekIso)", t.weekIso); return null; }
+      if (!memberIdSet.has(assignee)) { console.error("[AI_DEBUG] reject(member)", assignee, "not in", [...memberIdSet]); return null; }
       const notes =
         t.notes == null
           ? null
