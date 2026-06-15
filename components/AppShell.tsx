@@ -86,11 +86,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               justifySelf: "start",
             }}
           >
-            <img
-              src="https://app.instyle.group/_shared/static/logo.svg"
-              alt="INSTYLE GROUP"
-              style={{ height: 12, width: "auto", display: "block", opacity: 0.85 }}
-            />
+            <Link
+              href="/"
+              aria-label="ダッシュボードに戻る"
+              style={{ display: "block", lineHeight: 0 }}
+            >
+              <img
+                src="https://app.instyle.group/_shared/static/logo.svg"
+                alt="INSTYLE GROUP"
+                style={{ height: 12, width: "auto", display: "block", opacity: 0.85 }}
+              />
+            </Link>
             <strong
               className="t-h4"
               style={{ fontWeight: 600, letterSpacing: "-0.01em" }}
