@@ -5,6 +5,7 @@ import { and, gte, inArray, lte } from "drizzle-orm";
 import { WORK_RULES } from "@/lib/work-rules";
 import { weeklyCapacityHours } from "@/lib/capacity";
 import { weekHolidayList } from "@/lib/ai-helpers";
+import { SHIROCO_INDUSTRY_PROMPT } from "@/lib/shiroco-prompt";
 import {
   addWeeks,
   currentWeekIso,
@@ -331,6 +332,8 @@ function buildSystemPrompt(): string {
   return [
     "あなたはチームのプロジェクトマネージャーAIです。",
     "ユーザーから渡されるプロジェクト情報をもとに、必要なタスクを洗い出し、週(weekIso = YYYY-Www)と担当者(assigneeMemberId)を割り当てます。",
+    "",
+    SHIROCO_INDUSTRY_PROMPT,
     "",
     "## 稼働ルール（厳守）",
     `- 稼働曜日: 月〜金のみ`,
