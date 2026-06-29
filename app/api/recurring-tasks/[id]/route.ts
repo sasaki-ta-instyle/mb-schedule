@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import {
   clampHours,
+  clampWeekOfMonth,
   sanitizeText,
   TEXT_LIMITS,
   toIntId,
@@ -64,6 +65,24 @@ export async function PATCH(
       );
     }
     update.recurrenceType = body.recurrenceType;
+    // weekly に切り替えるなら weekOfMonth は意味を持たないので null に落とす
+    if (body.recurrenceType === "weekly") {
+      update.weekOfMonth = null;
+    }
+  }
+  if ("weekOfMonth" in body) {
+    if (body.weekOfMonth === null) {
+      update.weekOfMonth = null;
+    } else {
+      const v = clampWeekOfMonth(body.weekOfMonth);
+      if (v == null) {
+        return NextResponse.json(
+          { error: "invalid weekOfMonth (must be 1..5)" },
+          { status: 400 },
+        );
+      }
+      update.weekOfMonth = v;
+    }
   }
   if ("estimatedHours" in body) {
     if (body.estimatedHours === null) {

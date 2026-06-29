@@ -96,6 +96,14 @@ export function isValidProjectStatus(s: unknown): s is string {
   return typeof s === "string" && ALLOWED_PROJECT_STATUS.has(s);
 }
 
+export function clampWeekOfMonth(n: unknown): number | null {
+  if (n == null) return null;
+  const v = typeof n === "number" ? n : Number(n);
+  if (!Number.isInteger(v)) return null;
+  if (v < 1 || v > 5) return null;
+  return v;
+}
+
 export function clampHours(n: unknown): number | null {
   const v = typeof n === "number" ? n : Number(n);
   if (!Number.isFinite(v)) return null;

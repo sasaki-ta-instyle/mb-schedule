@@ -124,3 +124,11 @@ pm2 reload app-mb-schedule --update-env
 | `ADMIN_PASSWORD` | 編集モードの admin パスワード。未設定だと `1111` が通る（本番では必ず設定） | ✓ |
 | `ANTHROPIC_API_KEY` | AI タスク生成 | △（AI 機能を使う場合） |
 
+## AI タスク洗い出し時のスキル併走（重要）
+
+このプロジェクトはメビウス製薬（mb-）案件のスケジュール管理。**プロジェクトのタスクを AI で洗い出すときは、必ず `shiroco` Skill を planner と並列起動して、業界視点を取り込むこと**。
+
+- 対象視点: LTV / オファー設計 / 薬機法 / SNS マーケ / Web 分析 / コピーライティング / ブランディング / D2C・通販 CRM / OEM
+- Skill 本体: `~/.claude/skills/shiroco/SKILL.md`、素材棚: `~/Workspace/_outputs/shiroco/`
+- `POST /api/ai/generate-tasks` の Claude API 呼び出しはアプリ内蔵だが、Claude Code 経由で人間が「このプロジェクトのタスクを洗い出して」と依頼する場合の運用ルール
+

@@ -3,6 +3,7 @@ import { and, asc, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import {
   clampHours,
+  clampWeekOfMonth,
   sanitizeText,
   TEXT_LIMITS,
   toIntId,
@@ -55,6 +56,9 @@ export async function POST(req: Request) {
     ALLOWED_RECURRENCE.has(body.recurrenceType)
       ? body.recurrenceType
       : "weekly";
+  // weekOfMonth は monthly のときだけ意味を持つ。weekly のときは強制 null
+  const weekOfMonth =
+    recurrenceType === "monthly" ? clampWeekOfMonth(body.weekOfMonth) : null;
   const estimatedHours = body.estimatedHours == null ? null : clampHours(body.estimatedHours);
   if (body.estimatedHours != null && estimatedHours == null) {
     return NextResponse.json(
@@ -77,6 +81,7 @@ export async function POST(req: Request) {
       title,
       assigneeMemberId,
       recurrenceType,
+      weekOfMonth,
       estimatedHours: estimatedHours == null ? null : estimatedHours.toString(),
       notes,
       sortOrder,

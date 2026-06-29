@@ -12,12 +12,21 @@ type RecurringTask = {
   title: string;
   assigneeMemberId: number | null;
   recurrenceType: string;
+  weekOfMonth: number | null;
   estimatedHours: string | null;
   notes: string | null;
   sortOrder: number;
   archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
+};
+
+const WEEK_OF_MONTH_LABEL: Record<number, string> = {
+  1: "第1週",
+  2: "第2週",
+  3: "第3週",
+  4: "第4週",
+  5: "第5週",
 };
 
 const RECURRING_KEY = "/api/recurring-tasks?archived=1";
@@ -223,8 +232,8 @@ export function RecurringList() {
                 style={{
                   display: "grid",
                   gridTemplateColumns: isEdit
-                    ? "1fr 96px 120px 64px auto auto"
-                    : "1fr 64px 120px 64px auto",
+                    ? "1fr 96px 88px 120px 64px auto auto"
+                    : "1fr 64px 88px 120px 64px auto",
                   alignItems: "center",
                   gap: 8,
                   padding: "8px 8px",
@@ -252,9 +261,18 @@ export function RecurringList() {
                   <select
                     className="input editable-only"
                     value={r.recurrenceType}
-                    onChange={(e) =>
-                      updateField(r, { recurrenceType: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      // monthly に切替時、未指定なら第1週を補う
+                      if (next === "monthly" && r.weekOfMonth == null) {
+                        updateField(r, {
+                          recurrenceType: next,
+                          weekOfMonth: 1,
+                        });
+                      } else {
+                        updateField(r, { recurrenceType: next });
+                      }
+                    }}
                     style={{ fontSize: ".75rem", padding: "4px 8px" }}
                     aria-label="繰り返し"
                   >
@@ -267,6 +285,37 @@ export function RecurringList() {
                     style={{ textAlign: "center" }}
                   >
                     {r.recurrenceType === "monthly" ? "月次" : "週次"}
+                  </span>
+                )}
+                {isEdit ? (
+                  r.recurrenceType === "monthly" ? (
+                    <select
+                      className="input editable-only"
+                      value={r.weekOfMonth ?? 1}
+                      onChange={(e) =>
+                        updateField(r, { weekOfMonth: Number(e.target.value) })
+                      }
+                      style={{ fontSize: ".75rem", padding: "4px 8px" }}
+                      aria-label="第何週か"
+                      title="第5週が無い月はその月をスキップします"
+                    >
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <option key={n} value={n}>
+                          {WEEK_OF_MONTH_LABEL[n]}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span aria-hidden="true" />
+                  )
+                ) : (
+                  <span
+                    className="t-small mono muted"
+                    style={{ textAlign: "center" }}
+                  >
+                    {r.recurrenceType === "monthly" && r.weekOfMonth != null
+                      ? WEEK_OF_MONTH_LABEL[r.weekOfMonth] ?? ""
+                      : ""}
                   </span>
                 )}
                 <select
@@ -440,6 +489,7 @@ function NewRecurringInline({
   const [recurrenceType, setRecurrenceType] = useState<"weekly" | "monthly">(
     "weekly",
   );
+  const [weekOfMonth, setWeekOfMonth] = useState<number>(1);
   const [pending, setPending] = useState(false);
 
   return (
@@ -463,12 +513,14 @@ function NewRecurringInline({
             title: title.trim(),
             assigneeMemberId: assigneeId === "" ? null : assigneeId,
             recurrenceType,
+            weekOfMonth: recurrenceType === "monthly" ? weekOfMonth : null,
             estimatedHours: h != null && Number.isFinite(h) ? h : null,
           });
           setTitle("");
           setHours("");
           setAssigneeId("");
           setRecurrenceType("weekly");
+          setWeekOfMonth(1);
           onCreated();
         } finally {
           setPending(false);
@@ -494,6 +546,22 @@ function NewRecurringInline({
         <option value="weekly">毎週</option>
         <option value="monthly">毎月</option>
       </select>
+      {recurrenceType === "monthly" && (
+        <select
+          className="input"
+          value={weekOfMonth}
+          onChange={(e) => setWeekOfMonth(Number(e.target.value))}
+          style={{ width: 88, fontSize: ".75rem" }}
+          aria-label="第何週か"
+          title="第5週が無い月はその月をスキップします"
+        >
+          {[1, 2, 3, 4, 5].map((n) => (
+            <option key={n} value={n}>
+              {WEEK_OF_MONTH_LABEL[n]}
+            </option>
+          ))}
+        </select>
+      )}
       <select
         className="input"
         value={assigneeId}

@@ -113,6 +113,7 @@ export const recurringTasks = pgTable(
       onDelete: "set null",
     }),
     recurrenceType: text("recurrence_type").notNull().default("weekly"),
+    weekOfMonth: integer("week_of_month"),
     estimatedHours: numeric("estimated_hours", { precision: 7, scale: 2 }),
     notes: text("notes"),
     sortOrder: integer("sort_order").notNull().default(0),
